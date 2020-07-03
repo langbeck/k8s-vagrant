@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - import_tasks: tasks/disable-swap.yaml
+  - import_tasks: tasks/setup-firewalld-node.yaml
+  - import_tasks: tasks/setup-docker.yaml
+  - import_tasks: tasks/setup-kubernetes.yaml
+  - import_tasks: tasks/setup-kubernetes-node.yaml

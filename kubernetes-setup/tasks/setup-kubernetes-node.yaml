@@ -1,0 +1,9 @@
+- name: Fetch kubeadm join command
+  delegate_to: "{{ master_node_name }}"
+  command: kubeadm token create --print-join-command
+  register: join_command
+
+- name: Join the Kubernetes cluster
+  command:
+    cmd: "{{ join_command.stdout_lines[0] }}"
+    creates: /etc/kubernetes/kubelet.conf

@@ -1,0 +1,11 @@
+- name: Install kube-untaint-node
+  copy:
+    dest: /usr/local/bin/kube-untaint-node
+    mode: +x
+    content: |
+      #!/bin/bash
+      set -e
+      TAINT_KEY=$(kubectl get node $(hostname) -o json -o jsonpath='{.spec.taints[].key}')
+      if [ "${TAINT_KEY}" = "node-role.kubernetes.io/master" ]; then
+        kubectl taint node $(hostname) node-role.kubernetes.io/master-
+      fi

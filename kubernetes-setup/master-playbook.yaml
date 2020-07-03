@@ -1,0 +1,11 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - import_tasks: tasks/disable-swap.yaml
+  - import_tasks: tasks/setup-firewalld-master.yaml
+  - import_tasks: tasks/setup-docker.yaml
+  - import_tasks: tasks/setup-kubernetes.yaml
+  - import_tasks: tasks/setup-kubernetes-master.yaml
+  - import_tasks: tasks/setup-canal.yaml
+  - import_tasks: tasks/install-untaint.yaml    

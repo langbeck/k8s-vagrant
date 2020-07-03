@@ -1,0 +1,67 @@
+# References:
+# - https://kubernetes.io/docs/setup/production-environment/container-runtimes/#docker
+# - https://get.docker.com/
+
+- name: Install basic packages for CentOS
+  yum:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - device-mapper-persistent-data
+    - ca-certificates
+    - yum-utils
+    - lvm2
+
+- name: Add yum repository for stable version
+  yum_repository:
+    name: docker-ce-stable
+    description: Docker CE Stable
+    baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+    gpgkey: https://download.docker.com/linux/centos/gpg
+    gpgcheck: true
+
+- name: Install Docker and its dependecies
+  yum:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+
+- name: Add vagrant user to docker group
+  user:
+    name: vagrant
+    group: docker
+
+- name: Ensure Docker user configuration folder exists
+  file:
+    path: /etc/docker
+    state: directory
+
+- name: Set up the Docker daemon
+  copy:
+    dest: /etc/docker/daemon.json
+    content: |
+      {
+        "exec-opts": ["native.cgroupdriver=systemd"],
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "100m"
+        },
+        "storage-driver": "overlay2",
+        "storage-opts": [
+          "overlay2.override_kernel_check=true"
+        ]
+      }
+
+- name: Restart Docker
+  systemd:
+    name: docker
+    daemon_reload: yes
+    enabled: yes
+    state: restarted

@@ -1,0 +1,25 @@
+## Reference: https://medium.com/platformer-blog/kubernetes-on-centos-7-with-firewalld-e7b53c1316af
+
+- name: Opening basic Kubernets ports
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    state: enabled
+  loop:
+    - 10250/tcp
+    - 10255/tcp
+    - 8472/udp
+    - 30000-32767/tcp
+
+- name: Add masquerade
+  firewalld:
+    masquerade: enable
+    permanent: yes
+    state: enabled
+
+- name: Restart firewalld
+  systemd:
+    name: firewalld
+    daemon_reload: yes
+    enabled: yes
+    state: restarted

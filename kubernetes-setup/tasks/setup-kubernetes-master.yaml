@@ -1,0 +1,23 @@
+- name: Initialize the Kubernetes cluster using kubeadm
+  command:
+    cmd: >
+      kubeadm init
+        --apiserver-advertise-address={{ node_ip }}
+        --apiserver-cert-extra-sans={{ node_ip }}
+        --pod-network-cidr={{ network_cidr }}
+        --node-name={{ node_name }}
+    creates: /etc/kubernetes/kubelet.conf
+
+- name: Ensure Kubernetes user configuration folder exists
+  become: no
+  file:
+    path: /home/vagrant/.kube
+    state: directory
+
+- name: Setup kubeconfig for vagrant user
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/vagrant/.kube/config
+    remote_src: yes
+    owner: vagrant
+    group: vagrant

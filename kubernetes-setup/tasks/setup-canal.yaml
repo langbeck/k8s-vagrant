@@ -1,0 +1,19 @@
+- name: Install wait-apiserver
+  copy:
+    dest: /usr/local/bin/wait-apiserver
+    mode: +x
+    content: |
+      #!/bin/bash
+      set -e
+      API_SERVER_URL=$(kubectl config view -o jsonpath='{.clusters[0].cluster.server}')
+      while ! curl -sk "${API_SERVER_URL}" > /dev/null; do
+          sleep 0.5
+      done
+
+- name: Ensure kube-apiserver is ready
+  command: wait-apiserver
+  become: no
+
+- name: Install Calico for policy and flannel (aka Canal) for networking
+  command: kubectl apply -f https://docs.projectcalico.org/manifests/canal.yaml
+  become: no
